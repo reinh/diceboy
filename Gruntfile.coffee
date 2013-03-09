@@ -8,6 +8,9 @@ module.exports = (grunt) ->
       coffee:
         files: ['src/coffee/*']
         tasks: 'coffee'
+      stylus:
+        files: ['src/stylus/*']
+        tasks: 'stylus'
 
     coffee:
       compile:
@@ -22,6 +25,11 @@ module.exports = (grunt) ->
     coffeelint:
       source: 'src/coffee/**/*.coffee'
       grunt: 'Gruntfile.coffee'
+
+    stylus:
+      compile:
+        files:
+          'css/app.css': 'src/stylus/app.styl'
 
   # Dependencies
   for name of pkg.devDependencies when name.substring(0, 6) is 'grunt-'

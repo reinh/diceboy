@@ -1,6 +1,29 @@
 (function() {
   var App;
 
+  this.Dice = (function() {
+
+    function Dice(sides) {
+      this.sides = sides;
+      this.result || (this.result = Math.floor(Math.random() * this.sides) + 1);
+      this.display = this.result;
+    }
+
+    return Dice;
+
+  })();
+
+  this.DiceModifier = (function() {
+
+    function DiceModifier(result) {
+      this.result = result;
+      this.display = this.result > 0 ? "+ " + this.result : "- " + (Math.abs(this.result));
+    }
+
+    return DiceModifier;
+
+  })();
+
   App = this.App = Ember.Application.create();
 
   this.App.store = DS.Store.create({
@@ -9,64 +32,124 @@
   });
 
   this.App.DiceSet = DS.Model.extend({
-    name: DS.attr('string')
+    name: DS.attr('string', {
+      defaultValue: null
+    }),
+    diceString: DS.attr('string'),
+    lastRolled: DS.attr('date'),
+    input: (function() {
+      var diceString, name, str;
+      name = this.get('name');
+      diceString = this.get('diceString');
+      str = "";
+      if (name != null) {
+        str = "" + name + ": ";
+      }
+      return str = "" + str + diceString;
+    }).property('name', 'diceString')
   });
 
   this.App.DiceSet.FIXTURES = [
     {
-      name: 'd6',
+      diceString: 'd20',
       id: 1
     }, {
-      name: '2d12',
+      diceString: 'd20 + 4',
+      name: 'initiative',
       id: 2
+    }, {
+      diceString: 'd8',
+      name: 'longsword',
+      id: 3
     }
   ];
 
   this.App.IndexRoute = Ember.Route.extend({
-    setupController: function(controller) {
-      controller.input = "3d6 + 2d8 - 12 + d10";
-      return controller.result = "";
-    }
+    setupController: function(controller) {}
   });
 
-  this.App.history = Ember.ArrayController.create({
+  this.App.HistoryController = Ember.ArrayController.extend({
+    sortProperties: ['lastRolled'],
+    sortAscending: false
+  });
+
+  this.App.history = this.App.HistoryController.create({
     content: App.DiceSet.find()
   });
 
   this.App.IndexController = Ember.Controller.extend({
     roll: function() {
-      var input, intermediateResult, item, items, result, _ref;
-      input = this.get('input');
-      items = App.history.get('content');
-      if (!App.history.someProperty('name', input)) {
-        item = App.DiceSet.createRecord({
-          name: input
-        });
+      return this._parseInput() || $('.roll-form').effect('bounce');
+    },
+    _parseInput: function() {
+      var dice, diceString, die, input, item, matches, name;
+      try {
+        input = this.get('input');
+        if (input === "") {
+          return false;
+        }
+        input = input.split(/:\s*/);
+        if (input.length === 1) {
+          input = [null, input];
+        }
+        name = input[0];
+        diceString = input[1];
+        matches = function(item) {
+          return name === item.get('name') || diceString === item.get('diceString');
+        };
+        if (item = App.history.find(matches)) {
+          item.setProperties({
+            name: name,
+            diceString: diceString,
+            lastRolled: new Date()
+          });
+          item.store.commit();
+        } else {
+          item = App.DiceSet.createRecord({
+            name: name,
+            diceString: diceString,
+            lastRolled: new Date()
+          });
+        }
+        dice = DiceParser.parse(diceString);
+        this.set('dice', dice);
+        this.set('result', ((function() {
+          var _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = dice.length; _i < _len; _i++) {
+            die = dice[_i];
+            _results.push(die.result);
+          }
+          return _results;
+        })()).sum());
+        $('.result').effect('highlight', {
+          color: '#ffe'
+        }, 500);
+        return true;
+      } catch (error) {
+        return false;
       }
-      _ref = Dice.parse(input), intermediateResult = _ref[0], result = _ref[1];
-      intermediateResult = intermediateResult.join(' + ').replace(/\+ \-/g, ' - ');
-      this.set('intermediateResult', intermediateResult);
-      return this.set('result', result);
     }
   });
 
   this.App.HistoryView = Ember.CollectionView.extend({
     tagName: 'ul',
-    itemViewClass: 'App.HistoryItemView',
-    content: (function() {
-      return App.history.get('content').toArray().reverse();
-    }).property('App.history.@each').cacheable()
+    contentBinding: 'App.history.arrangedContent',
+    itemViewClass: 'App.HistoryItemView'
   });
 
   this.App.HistoryItemView = Ember.View.extend({
-    template: Ember.Handlebars.compile("{{view.content.name}}}"),
-    nameBinding: 'content.name',
+    classNames: ['history-item'],
+    template: Ember.Handlebars.compile("{{view.content.diceString}}\n<div class=\"item-name\">\n  {{view.content.name}}\n</div>"),
+    inputBinding: 'content.input',
     click: function() {
       var input;
-      input = this.get('name');
-      console.log(input);
+      input = this.get('input');
       this.set('controller.input', input);
-      return this.get('controller').send('roll');
+      this.get('controller').send('roll');
+      return $('html, body').animate({
+        scrollTop: 0
+      }, 200);
     }
   });
 
@@ -88,26 +171,51 @@
     });
   };
 
-  this.Dice = {
-    roll: function(n) {
-      return Math.floor(Math.random() * n) + 1;
-    },
-    history: [],
+  Array.prototype.flatten = function() {
+    var element, flattened, _i, _len;
+    flattened = [];
+    for (_i = 0, _len = this.length; _i < _len; _i++) {
+      element = this[_i];
+      if (element.flatten != null) {
+        flattened = flattened.concat(element.flatten());
+      } else {
+        flattened.push(element);
+      }
+    }
+    return flattened;
+  };
+
+  Number.prototype.times = function(fn) {
+    var _i, _ref, _results;
+    _results = [];
+    for (_i = 1, _ref = this.valueOf(); 1 <= _ref ? _i <= _ref : _i >= _ref; 1 <= _ref ? _i++ : _i--) {
+      _results.push(fn());
+    }
+    return _results;
+  };
+
+  this.DiceParser = {
     parse: function(input) {
       var dice, die, parseDie;
       dice = input.replace(/-/g, '+-').replace(/\s+/g, '').split('+');
       parseDie = function(die) {
-        var number, parts, sides;
+        var number, parts, sides, _i, _results;
         parts = die.split('d');
         if (parts.length === 1) {
-          return parseInt(parts[0]);
+          return new this.DiceModifier(parseInt(parts[0]));
         } else {
           number = parseInt(parts[0] === "" ? "1" : parts[0]);
           sides = parseInt(parts[1]);
-          return number * this.Dice.roll(sides);
+          return (function() {
+            _results = [];
+            for (var _i = 1; 1 <= number ? _i <= number : _i >= number; 1 <= number ? _i++ : _i--){ _results.push(_i); }
+            return _results;
+          }).apply(this).map(function() {
+            return new this.Dice(sides);
+          });
         }
       };
-      dice = (function() {
+      return ((function() {
         var _i, _len, _results;
         _results = [];
         for (_i = 0, _len = dice.length; _i < _len; _i++) {
@@ -115,8 +223,7 @@
           _results.push(parseDie(die));
         }
         return _results;
-      })();
-      return [dice, dice.sum()];
+      })()).flatten();
     }
   };
 
