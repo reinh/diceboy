@@ -95,7 +95,11 @@
         name = input[0];
         diceString = input[1];
         matches = function(item) {
-          return name === item.get('name') || diceString === item.get('diceString');
+          if (name === null) {
+            return diceString === item.get('diceString');
+          } else {
+            return name === item.get('name');
+          }
         };
         if (item = App.history.find(matches)) {
           item.setProperties({

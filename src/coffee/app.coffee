@@ -62,7 +62,10 @@ App = @App = Ember.Application.create()
       diceString = input[1]
 
       matches = (item) ->
-        name is item.get('name') or diceString is item.get('diceString')
+        if name is null
+          diceString is item.get('diceString')
+        else
+          name is item.get('name')
 
       if item = App.history.find matches
         item.setProperties
