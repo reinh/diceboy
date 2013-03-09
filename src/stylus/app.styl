@@ -1,26 +1,45 @@
-small      = 14px
-meduium    = 16px
+small      = 15px
+medium     = 16px
 large      = 24px
 huge       = 36px
 extra-huge = 66px
 
+light-weight   = 100
+regular-weight = 400
+bold-weight    = 700
+
+body
+  font-weight regular-weight
+
 h1
   font-size large
+  font-weight light-weight
+  letter-spacing 1px
 
 h2
   font-size medium
+  font-weight regular-weight
   margin-bottom 0
 
   small
+    letter-spacing 1px
     font-size small
+    font-weight light-weight
+    color #666
+    text-shadow 0 0 1px rgba(0,0,0,0.1)
 
 .roll-form
   input
     width 213px
   input, button
     font-size medium
+    font-weight regular-weight
+    letter-spacing 1px
+    color #666
 
 .result
+  background #f8f8f8
+  border 1px solid #eee
   font-size large
   padding 10px
   padding-bottom 0
@@ -58,29 +77,30 @@ h2
 
 
 .history-items
-  ul
-    margin-left 0
+  .history-item
+    box-sizing border-box
+    position relative
+    background #f8f8f8
+    list-style-type none
+    padding 15px 10px
+    border 1px solid #eee
+    margin-bottom 10px
+    border-radius 5px
+    font-size large
+    text-shadow 0 1px rgba(0,0,0,0.1), 0 -1px 2px rgba(255,255,255,0.2)
 
-    li
-      position relative
-      background #f8f8f8
-      list-style-type none
-      padding 15px 10px
-      border 1px solid #eee
-      margin-bottom 10px
-      border-radius 5px
-      font-size large
+    .item-name
+      letter-spacing 1px
+      font-size large - 3px
+      font-weight light-weight
+      position absolute
+      right 20px
+      top 15px
+      color #ccc
 
-      .item-name
-        font-size medium
-        position absolute
-        right 20px
-        top 15px
-        color #ccc
-
-      &:hover
-        background #f4f8f4
-        cursor pointer
+    &:hover
+      background #f4f4f4
+      cursor pointer
 
 .ui-effects-wrapper
     float left !important // make wrapper stop breaking layout

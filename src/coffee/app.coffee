@@ -87,12 +87,11 @@ App = @App = Ember.Application.create()
       return false
 
 @App.HistoryView = Ember.CollectionView.extend
-  tagName: 'ul'
   contentBinding: 'App.history.arrangedContent'
   itemViewClass: 'App.HistoryItemView'
 
 @App.HistoryItemView = Ember.View.extend
-  classNames: ['history-item']
+  classNames: ['history-item', 'span6']
   template: Ember.Handlebars.compile """
     {{view.content.diceString}}
     <div class="item-name">

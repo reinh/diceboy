@@ -133,13 +133,12 @@
   });
 
   this.App.HistoryView = Ember.CollectionView.extend({
-    tagName: 'ul',
     contentBinding: 'App.history.arrangedContent',
     itemViewClass: 'App.HistoryItemView'
   });
 
   this.App.HistoryItemView = Ember.View.extend({
-    classNames: ['history-item'],
+    classNames: ['history-item', 'span6'],
     template: Ember.Handlebars.compile("{{view.content.diceString}}\n<div class=\"item-name\">\n  {{view.content.name}}\n</div>"),
     inputBinding: 'content.input',
     click: function() {
