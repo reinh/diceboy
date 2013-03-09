@@ -90,7 +90,7 @@
         }
         input = input.split(/:\s*/);
         if (input.length === 1) {
-          input = [null, input];
+          input.unshift(null);
         }
         name = input[0];
         diceString = input[1];

@@ -54,7 +54,8 @@ App = @App = Ember.Application.create()
 
       input = input.split(/:\s*/)
 
-      input = [null, input] if input.length is 1
+      # name is null unless specified
+      input.unshift null if input.length is 1
 
       name = input[0]
       diceString = input[1]
