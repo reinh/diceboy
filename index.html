@@ -1,22 +1,54 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset=utf-8 />
 <title>Ember Starter Kit</title>
   <script src="js/libs/jquery-1.9.1.js"></script>
+
+  <!-- Twitter Bootstrap -->
+  <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+  <link href="http://netdna.bootstrapcdn.com/font-awesome/3.0.2/css/font-awesome.css" rel="stylesheet">
+  <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+
   <script src="js/libs/handlebars-1.0.0-rc.3.js"></script>
   <script src="js/libs/ember-1.0.0-rc.1.js"></script>
+  <script src="js/libs/ember-data.js"></script>
+  <script src="http://cloud.github.com/downloads/emberjs-addons/ember-bootstrap/ember-bootstrap-0.0.1.min.js"></script>
   <script src="js/app.js"></script>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <script type="text/x-handlebars">
+    <div class="container">
+      <h1>Diceboy</h1>
+
+      {{outlet}}
+    </div>
+  </script>
+
   <script type="text/x-handlebars" data-template-name="index">
-    <h2>Index Content:</h2>
-    <ul>
-    {{#each item in content}}
-        <li>{{item}}</li>
-    {{/each}}
-     </ul>
+    {{view App.DiceRoller}}
+  </script>
+
+  <script type="text/x-handlebars" data-template-name="dice_roller">
+    <form class="form-inline">
+      {{view Ember.TextField
+          placeholder="Roll some dice"
+          valueBinding="controller.input"}}
+      {{#view view.button}}Roll{{/view}}
+    </form>
+
+    {{#view Bootstrap.Well}}
+      {{#if result}}
+      Result: {{intermediateResult}} = <b>{{result}}</b>
+      {{/if}}
+    {{/view}}
+
+    <h2>History</h2>
+    {{view App.HistoryView}}
   </script>
 </body>
 </html>
+
+<!-- vim:ft=mustache syntax=handlebars
+-->
