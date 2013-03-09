@@ -37,7 +37,8 @@ App = @App = Ember.Application.create()
   setupController: (controller) ->
 
 @App.HistoryController = Ember.ArrayController.extend
-  sortProperties: ['lastRolled']
+  # Sort by reverse creation order (latest first)
+  sortProperties: ['id']
   sortAscending: false
 
 @App.history = @App.HistoryController.create

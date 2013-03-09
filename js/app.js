@@ -69,7 +69,7 @@
   });
 
   this.App.HistoryController = Ember.ArrayController.extend({
-    sortProperties: ['lastRolled'],
+    sortProperties: ['id'],
     sortAscending: false
   });
 
